@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Analyze{% endblock %}
+{% block content %}
+<section class="container page" style="max-width:820px">
+  <div class="page-head"><div><h1>Analyze your resume</h1>
+    <p class="muted">Upload a PDF and paste the job description.
+      <span class="badge {{ ai_status.mode }}">{{ 'Live AI' if ai_status.mode == 'live' else 'Demo mode' }}</span></p></div></div>
+  <form id="analyzeForm" class="card" enctype="multipart/form-data" novalidate>
+    <label>1. Resume (PDF, max 5 MB)</label>
+    <div class="dropzone" id="dropzone"><div class="icon" style="font-size:2rem">⬆️</div><div id="fileLabel">Click to choose a PDF or drag it here</div></div>
+    <input type="file" id="resume" name="resume" accept="application/pdf,.pdf" hidden>
+    <label for="job_title">2. Job title (optional)</label>
+    <input type="text" id="job_title" name="job_title" maxlength="120" placeholder="e.g. Python Backend Developer">
+    <label for="job_description">3. Job description</label>
+    <textarea id="job_description" name="job_description" maxlength="15000" placeholder="Paste the full job description here..."></textarea>
+    <div class="hint" id="jdCount">0 / 15000</div>
+    <div id="formError" class="alert" role="alert"></div>
+    <button type="submit" id="submitBtn" class="btn btn-primary" style="margin-top:1rem">Analyze resume →</button>
+  </form>
+</section>
+<div class="overlay" id="overlay"><div class="spinner"></div><div>Analyzing your resume…</div></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/analyze.js') }}"></script>{% endblock %}

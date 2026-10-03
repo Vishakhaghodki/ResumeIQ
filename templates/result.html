@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Result #{{ a.id }}{% endblock %}
+{% block content %}
+<section class="container page stack">
+  <div class="page-head">
+    <div>
+      <h1>{{ a.job_title }}</h1>
+      <p class="muted">{{ a.filename }} · {{ a.created_at }} UTC ·
+        <span class="badge {{ a.ai_mode }}">{{ 'Live AI (' ~ a.ai_provider ~ ')' if a.ai_mode == 'live' else 'Demo mode' }}</span></p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('api.download_report', analysis_id=a.id) }}">⬇ Download report</a>
+      <a class="btn btn-ghost" href="{{ url_for('pages.analyze') }}">New analysis</a>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card center-card"><h3>Job match score</h3><div class="chart-box"><canvas id="matchChart"></canvas></div></div>
+    <div class="card center-card"><h3>ATS compatibility</h3><div class="chart-box"><canvas id="atsChart"></canvas></div></div>
+    <div class="card"><h3>Score breakdown</h3><div class="chart-box"><canvas id="breakdownChart"></canvas></div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card"><h3>Skill match</h3><div class="chart-box"><canvas id="skillChart"></canvas></div><div class="chart-empty"></div></div>
+    <div class="card"><h3>Missing skills</h3><div class="chart-box"><canvas id="missingChart"></canvas></div><div class="chart-empty"></div></div>
+  </div>
+
+  <div class="card">
+    <h3>Skills comparison</h3>
+    <p class="muted" style="margin-bottom:.4rem">Matched ({{ a.matched_skills|length }})</p>
+    <div class="chips">{% for s in a.matched_skills %}<span class="chip ok">{{ s }}</span>{% else %}<span class="muted">None detected</span>{% endfor %}</div>
+    <p class="muted" style="margin:1rem 0 .4rem">Missing ({{ a.missing_skills|length }})</p>
+    <div class="chips">{% for m in a.missing_skills %}<span class="chip miss">{{ m.skill }}</span>{% else %}<span class="muted">Nothing missing 🎉</span>{% endfor %}</div>
+    <p class="muted" style="margin:1rem 0 .4rem">Missing keywords</p>
+    <div class="chips">{% for k in a.missing_keywords %}<span class="chip">{{ k }}</span>{% else %}<span class="muted">None</span>{% endfor %}</div>
+  </div>
+
+  <div class="card">
+    <h3>Improvement suggestions</h3>
+    <ul class="sugg">{% for s in a.suggestions %}<li class="{{ s.priority }}"><b>{{ s.priority }}</b>{{ s.text }}</li>{% endfor %}</ul>
+  </div>
+
+  <div class="card">
+    <h3>ATS compatibility details</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Check</th><th>Result</th><th>Points</th><th>Details</th></tr>
+      {% for c in a.ats_details.checks %}
+      <tr><td>{{ c.name }}</td><td class="status {{ c.status }}">{{ c.status|upper }}</td><td>{{ c.points }}/{{ c.max }}</td><td class="muted">{{ c.detail }}</td></tr>
+      {% endfor %}
+    </table></div>
+  </div>
+
+  <div class="card">
+    <h3>AI feedback</h3>
+    <div class="ai-box">{{ a.ai_feedback }}</div>
+  </div>
+
+  <div class="card">
+    <h3>Extracted resume information</h3>
+    <div class="grid grid-3" style="margin-bottom:1rem">
+      <div><div class="muted">Name</div><b>{{ a.info.name }}</b></div>
+      <div><div class="muted">Email</div><b>{{ a.info.email or '—' }}</b></div>
+      <div><div class="muted">Phone</div><b>{{ a.info.phone or '—' }}</b></div>
+    </div>
+    <p class="muted" style="margin-bottom:.4rem">Skills detected</p>
+    <div class="chips" style="margin-bottom:1rem">{% for s in a.info.skills %}<span class="chip">{{ s }}</span>{% else %}<span class="muted">None</span>{% endfor %}</div>
+    {% for title, key in [('Education','education'),('Experience','experience'),('Projects','projects'),('Certifications','certifications')] %}
+    <details style="margin-bottom:.6rem"><summary>{{ title }} ({{ a.info[key]|length }})</summary>
+      <ul>{% for line in a.info[key] %}<li>{{ line }}</li>{% else %}<li class="muted">Nothing detected</li>{% endfor %}</ul>
+    </details>
+    {% endfor %}
+  </div>
+  <script id="analysisData" type="application/json">{{ {'match_score': a.match_score, 'ats_score': a.ats_score, 'skill_score': a.skill_score, 'keyword_score': a.keyword_score, 'similarity_score': a.similarity_score, 'matched_skills': a.matched_skills, 'missing_skills': a.missing_skills}|tojson }}</script>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>renderResultCharts(JSON.parse(document.getElementById('analysisData').textContent));</script>
+{% endblock %}

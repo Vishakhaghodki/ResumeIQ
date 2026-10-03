@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <h1>Land more interviews with an <em>AI-powered</em> resume check</h1>
+    <p>Upload your PDF resume, paste a job description, and get a match score, ATS analysis, missing skills and personalised suggestions in seconds.</p>
+    <a class="btn btn-primary" href="{{ url_for('pages.analyze') }}">Analyze my resume →</a>
+    <a class="btn btn-ghost" href="{{ url_for('pages.dashboard') }}">View dashboard</a>
+    <p style="margin-top:1.2rem"><span class="badge {{ ai_status.mode }}">{{ 'Live AI: ' ~ ai_status.provider if ai_status.mode == 'live' else 'Demo mode (no API key set)' }}</span></p>
+  </div>
+</section>
+<section class="section container">
+  <h2 class="section-title">Everything you need to tailor your resume</h2>
+  <div class="grid grid-3">
+    <div class="card"><div class="icon">📄</div><h3>Smart parsing</h3><p class="muted">Extracts name, contact, skills, education, experience, projects and certifications from your PDF.</p></div>
+    <div class="card"><div class="icon">🎯</div><h3>Job match score</h3><p class="muted">Compares your resume to the job description using skills, keywords and text similarity.</p></div>
+    <div class="card"><div class="icon">🧩</div><h3>Missing skills</h3><p class="muted">See exactly which skills and keywords the job asks for that your resume doesn't show.</p></div>
+    <div class="card"><div class="icon">🤖</div><h3>ATS check</h3><p class="muted">11 checks covering structure, length, bullets, metrics and formatting.</p></div>
+    <div class="card"><div class="icon">✨</div><h3>AI feedback</h3><p class="muted">Personalised rewrite advice from an AI model, with an offline demo mode.</p></div>
+    <div class="card"><div class="icon">📊</div><h3>Analytics dashboard</h3><p class="muted">Track your progress across analyses and download shareable reports.</p></div>
+  </div>
+</section>
+<section class="section container">
+  <h2 class="section-title">How it works</h2>
+  <div class="grid grid-3">
+    <div class="card center-card"><div class="icon">1️⃣</div><h3>Upload</h3><p class="muted">Add your text-based PDF resume.</p></div>
+    <div class="card center-card"><div class="icon">2️⃣</div><h3>Paste the job</h3><p class="muted">Copy the job description you're targeting.</p></div>
+    <div class="card center-card"><div class="icon">3️⃣</div><h3>Improve</h3><p class="muted">Follow the suggestions and re-check your score.</p></div>
+  </div>
+</section>
+{% endblock %}

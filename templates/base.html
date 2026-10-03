@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}AI Resume Analyzer{% endblock %} · ResumeIQ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="{{ url_for('pages.index') }}">Resume<span>IQ</span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+    <nav id="navLinks">
+      <a href="{{ url_for('pages.index') }}" class="{{ 'active' if request.endpoint == 'pages.index' }}">Home</a>
+      <a href="{{ url_for('pages.analyze') }}" class="{{ 'active' if request.endpoint == 'pages.analyze' }}">Analyze</a>
+      <a href="{{ url_for('pages.dashboard') }}" class="{{ 'active' if request.endpoint == 'pages.dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('pages.history') }}" class="{{ 'active' if request.endpoint == 'pages.history' }}">History</a>
+    </nav>
+  </div>
+</header>
+<main>{% block content %}{% endblock %}</main>
+<footer>ResumeIQ · AI Resume Analyzer · Built with Flask &amp; SQLite</footer>
+<div id="toast" class="toast" role="status"></div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

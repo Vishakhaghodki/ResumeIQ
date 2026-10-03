@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+<section class="container page stack">
+  <div class="page-head"><div><h1>Analysis history</h1><p class="muted">{{ rows|length }} saved analyses</p></div>
+    <a class="btn btn-primary" href="{{ url_for('pages.analyze') }}">New analysis</a></div>
+  {% if rows %}
+  <div class="card"><h3>Scores over time</h3><div class="chart-box"><canvas id="trendChart"></canvas></div></div>
+  <div class="card">
+    <div class="toolbar"><input type="text" id="search" placeholder="Search by job, file or name…"></div>
+    <div class="table-wrap"><table id="historyTable">
+      <thead><tr><th>#</th><th>Date (UTC)</th><th>Job</th><th>File</th><th>Match</th><th>ATS</th><th></th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+      <tr data-id="{{ r.id }}">
+        <td>{{ r.id }}</td><td>{{ r.created_at }}</td><td>{{ r.job_title }}</td><td>{{ r.filename }}</td>
+        <td class="score {{ r.match_score|score_class }}"><b>{{ r.match_score }}</b></td>
+        <td class="score {{ r.ats_score|score_class }}"><b>{{ r.ats_score }}</b></td>
+        <td style="white-space:nowrap">
+          <a class="btn btn-ghost" style="padding:.35rem .7rem" href="{{ url_for('pages.result', analysis_id=r.id) }}">View</a>
+          <a class="btn btn-ghost" style="padding:.35rem .7rem" href="{{ url_for('api.download_report', analysis_id=r.id) }}">Report</a>
+          <button class="btn btn-danger" data-delete="{{ r.id }}">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+  {% else %}
+  <div class="card center-card"><h3>No history yet</h3><p class="muted">Your analyses will appear here.</p><a class="btn btn-primary" href="{{ url_for('pages.analyze') }}">Analyze a resume</a></div>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+{% if rows %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+  const rows = {{ rows|tojson }};
+  trendChart("trendChart", rows.slice().reverse().map(r => ({ label: "#" + r.id + " " + r.job_title.slice(0, 18), match: r.match_score, ats: r.ats_score })));
+
+  document.getElementById("search").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll("#historyTable tbody tr").forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? "" : "none";
+    });
+  });
+  document.querySelectorAll("[data-delete]").forEach(btn => btn.addEventListener("click", async () => {
+    if (!confirm("Delete this analysis permanently?")) return;
+    try {
+      await apiFetch("/api/analyses/" + btn.dataset.delete, { method: "DELETE" });
+      toast("Analysis deleted");
+      setTimeout(() => location.reload(), 600);
+    } catch (err) { toast(err.message); }
+  }));
+</script>
+{% endif %}
+{% endblock %}

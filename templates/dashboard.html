@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="container page stack">
+  <div class="page-head"><div><h1>Analytics dashboard</h1><p class="muted">Your progress across all analyses.</p></div>
+    <a class="btn btn-primary" href="{{ url_for('pages.analyze') }}">New analysis</a></div>
+  <div class="grid grid-4">
+    <div class="card"><div class="stat-value" id="stTotal">–</div><div class="stat-label">Total analyses</div></div>
+    <div class="card"><div class="stat-value" id="stMatch">–</div><div class="stat-label">Average match score</div></div>
+    <div class="card"><div class="stat-value" id="stAts">–</div><div class="stat-label">Average ATS score</div></div>
+    <div class="card"><div class="stat-value" id="stBest">–</div><div class="stat-label">Best match score</div></div>
+  </div>
+  <div class="card center-card" id="dashEmpty" style="display:none"><h3>No analyses yet</h3><p class="muted">Run your first analysis to see charts here.</p><a class="btn btn-primary" href="{{ url_for('pages.analyze') }}">Analyze a resume</a></div>
+  <div id="dashCharts" class="stack">
+    <div class="card"><div class="toolbar"><h3 style="margin:0;flex:1">Score history</h3>
+      <select id="range"><option value="all">All</option><option value="10">Last 10</option><option value="5">Last 5</option></select></div>
+      <div class="chart-box tall"><canvas id="trendChart"></canvas></div></div>
+    <div class="grid grid-3">
+      <div class="card center-card"><h3>Average ATS score</h3><div class="chart-box"><canvas id="avgAtsChart"></canvas></div></div>
+      <div class="card"><h3>Average skill match &amp; scores</h3><div class="chart-box"><canvas id="avgChart"></canvas></div></div>
+      <div class="card"><h3>Match score distribution</h3><div class="chart-box"><canvas id="distChart"></canvas></div></div>
+    </div>
+    <div class="card"><h3>Most common missing skills</h3><div class="chart-box tall"><canvas id="topMissingChart"></canvas></div><div class="chart-empty"></div></div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>renderDashboard().catch(e => toast(e.message));</script>
+{% endblock %}
